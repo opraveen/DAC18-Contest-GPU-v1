@@ -19,11 +19,12 @@ if __name__ == "__main__":
     ##            |xml
 
     ## !!!! Please specify your team name here
-    teamName = 'yourTeamName'
+    teamName = 'RandomSearch'
     ## !!!! please specify the dir here, and please put all the images for test in the folder "images".
     ## Important! You can specify the folder in your local test. But for the sumission, DAC folder is fixed as follows
     #DAC = '/home/DACSDC_GPU' ## uncomment this line when submitting your code
-    DAC = 'D:/DAC-dataset/test'
+    DAC = '/home/nvidia/DAC/DAC18-Contest-GPU-v1'
+    # DAC = 'D:/DAC-dataset/test'
     [imgDir, resultDir, timeDir, xmlDir, myXmlDir, allTimeFile] = procfunc.setupDir(DAC, teamName)
 
     ############### processing for object detection and tracking ###########################################################
@@ -32,11 +33,12 @@ if __name__ == "__main__":
     ### process all the images in batch
     batchNumDiskToDram = 5 ## the # of images read from disk to DRAM in one time
     batchNumDramToGPU  = 3 ## the # of images read from DRAM to GPU in one time for batch processing on the GPU
-    imageReadTime = math.ceil(imageNum/batchNumDiskToDram)
-    imageProcTimeEachRead = math.ceil(batchNumDiskToDram/batchNumDramToGPU)
+    imageReadTime = int(math.ceil(imageNum/batchNumDiskToDram))
+    imageProcTimeEachRead = int(math.ceil(batchNumDiskToDram/batchNumDramToGPU))
     resultRectangle = np.zeros((imageNum, 4)) ## store all the results about tracking accuracy
 
     time_start=time.time()
+
     for i in range(imageReadTime):
         ImageDramBatch = procfunc.readImagesBatch(imgDir,allImageName, imageNum, i, batchNumDiskToDram)
         for j in range(imageProcTimeEachRead):
@@ -52,6 +54,7 @@ if __name__ == "__main__":
     time_end = time.time()
     resultRunTime = time_end-time_start
 
+    print (myXmlDir)
     ############### write results (write time to allTimeFile and detection results to xml) #################################
     procfunc.storeResultsToXML(resultRectangle, allImageName, myXmlDir)
     procfunc.write(imageNum,resultRunTime,teamName, allTimeFile)
